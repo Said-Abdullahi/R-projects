@@ -1,0 +1,396 @@
+---
+title: "Assignment 2 - SIT718"
+author: "Said Abdullahi"
+date: '2022-09-03'
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Question 1 - Understand the Data
+
+
+## import dataset
+```{r cars}
+#import dataset
+the.data <- as.matrix(read.table("/Users/saidpiccolo/Downloads/data\ for\ Assessment\ 2\ updated/Forest_2022.txt"))  
+
+#Check the data
+
+head(the.data)
+```
+
+## Descriptive Statistics
+
+```{r}
+#Summary of data for understanding
+summary(the.data)
+```
+
+```{r}
+set.seed(221377847) # using your student ID number for reproducible sampling with the seed function
+```
+
+## Choose variable of interest and generate a subset of 330 rows
+```{r}
+#The variable of interest is Y (area). To investigate Y, generate a subset of 330 with numerical data e.g. using:
+my.data <- the.data[sample(1:517,330),c(1:13)]
+
+#To verify the data dimension 
+dim(my.data)
+
+#Change the column names
+colnames(my.data) <- c("X1", "X2", "X3", "X4", "X5", "X6", "X7", "X8", "X9", "X10", "X11", "X12", "Y")
+
+#Check column names
+head(my.data)
+```
+
+## Scatter Plot for variables X5, X6, X7, X8, X9, X10, X11, X12, and our variable of interest Y
+
+Most variable are positively correlated with burned area. Where temperature seems to shows that strong positive correlations. RH and rain are the variable not showing positive correlation.
+
+There are some OUTLIERS in FFMC, rain, and maybe ISI. Rain is interesting because it may need negation transformation.
+No rain would lead to more burned area. And more rain may lead to less burned area.
+
+```{r pressure, echo=FALSE}
+# Use scatter plots 
+# variables X5, X6, X7, X8, X9, X10, X11, X12, and your variable of interest Y.
+
+# Create 8 scatterplots function (for each X variable against the variable of interest Y) 
+par(mfrow=c(2,2))
+plot(my.data[,5], my.data[,13], xlab = "FFMC", ylab = "area", main = "area vs FFMC")
+plot(my.data[,6], my.data[,13], xlab = "DMC", ylab = "area", main = "area vs DMC")
+plot(my.data[,7], my.data[,13], xlab = "DC", ylab = "area", main = "area vs DC")
+plot(my.data[,8], my.data[,13], xlab = "ISI", ylab = "area", main = "area vs ISI")
+plot(my.data[,9], my.data[,13], xlab = "temp", ylab = "area", main = "area vs temp")
+plot(my.data[,10], my.data[,13], xlab = "RH", ylab = "area", main = "area vs RH")
+plot(my.data[,11], my.data[,13], xlab = "wind", ylab = "area", main = "area vs wind")
+plot(my.data[,12], my.data[,13], xlab = "rain", ylab = "area", main = "area vs rain")
+```
+
+## Histogram Plot for variables X5, X6, X7, X8, X9, X10, X11, X12, and our variable of interest Y
+
+Histogram visualises the distribution of the variables.FFMC is negatively skewed, this may be because of outliers.
+DMC is slightly positively skewed. DC is also slightly negatively skewed. Rain is most skewed. Rain is positively skewed.
+RH is slightly positive skewed. Temperature seems to normally distributed. Others are slightly skewed, however close to normally distributed. The histogram with normal distribution overlay reiterates the above. The skewness scores also reiterates the histograms. however technically temperature is the only normal distributed variable. FFMC, DC, and rain are the most skewed. With rain been most skewed. While other are slightly skewed, the skewness scores show they are close to be normally distributed.
+
+
+```{r}
+# Create 9 histograms for each X variable and Y
+## Combine multiple graphs into a single plot
+par(mfrow=c(3,3))
+hist(my.data[,5], col = "green", main = "Histogram of FFMC", xlab = "FFMC")
+hist(my.data[,6], col = "blue", main = "Histogram of DMC", xlab = "DMC")
+hist(my.data[,7], col = "red", main = "Histogram of DC", xlab = "DC")
+hist(my.data[,8], col = "yellow", main = "Histogram of ISI", xlab = "ISI")
+hist(my.data[,9], col = "orange", main = "Histogram of temp", xlab = "temp")
+hist(my.data[,10], col = "black", main = "Histogram of RH", xlab = "RH")
+hist(my.data[,11], col = "purple", main = "Histogram of wind", xlab = "wind")
+hist(my.data[,12], col = "darkgrey", main = "Histogram of rain", xlab = "rain")
+hist(my.data[,13], col = "darkblue", main = "Histogram of area", xlab = "area")
+```
+
+## plot histograms and overlay a normal distribution
+
+```{r}
+## plot histograms and overlay a normal distribution
+par(mfrow=c(3,3))
+hist(my.data[,5], freq = FALSE, col="green", density=20, main = "Histogram & Distribution of FFMC", xlab = "FFMC")
+curve(dnorm(x, mean=mean(my.data[,5]), sd=sd(my.data[,5])), add=TRUE, col = "red")
+hist(my.data[,6], freq = FALSE, col="blue", density=20, main = "Histogram & Distribution of DMC", xlab = "DMC")
+curve(dnorm(x, mean=mean(my.data[,6]), sd=sd(my.data[,6])), add=TRUE, col = "red")
+hist(my.data[,7], freq = FALSE, col="darkred", density=20, main = "Histogram & Distribution of DC", xlab = "DC")
+curve(dnorm(x, mean=mean(my.data[,7]), sd=sd(my.data[,7])), add=TRUE, col = "red")
+hist(my.data[,8], freq = FALSE, col="yellow", density=20, main = "Histogram & Distribution of ISI", xlab = "ISI")
+curve(dnorm(x, mean=mean(my.data[,8]), sd=sd(my.data[,8])), add=TRUE, col = "red")
+hist(my.data[,9], freq = FALSE, col="orange", density=20, main = "Histogram & Distribution of temp", xlab = "temp")
+curve(dnorm(x, mean=mean(my.data[,9]), sd=sd(my.data[,9])), add=TRUE, col = "red")
+hist(my.data[,10], freq = FALSE, col="black", density=20, main = "Histogram & Distribution of RH", xlab = "RH")
+curve(dnorm(x, mean=mean(my.data[,10]), sd=sd(my.data[,10])), add=TRUE, col = "red")
+hist(my.data[,11], freq = FALSE, col="purple", density=20, main = "Histogram & Distribution of wind", xlab = "wind")
+curve(dnorm(x, mean=mean(my.data[,11]), sd=sd(my.data[,11])), add=TRUE, col = "red")
+hist(my.data[,12], freq = FALSE, col="darkgrey", density=20, main = "Histogram & Distribution of rain", xlab = "rain")
+curve(dnorm(x, mean=mean(my.data[,12]), sd=sd(my.data[,12])), add=TRUE, col = "red")
+hist(my.data[,13], freq = FALSE, col="darkblue", density=20, main = "Histogram & Distribution of area", xlab = "area")
+curve(dnorm(x, mean=mean(my.data[,13]), sd=sd(my.data[,13])), add=TRUE, col = "red")
+```
+
+## Checking for normality
+
+```{r}
+##-----Skewness--------##
+# install package and upload
+install.packages("e1071",repos = "http://cran.us.r-project.org")
+library("e1071")
+
+# calculate the skewness
+skewness(my.data[,5]) # FFMC skewness
+skewness(my.data[,6]) # DMC skewness
+skewness(my.data[,7]) # DC skewness
+skewness(my.data[,8]) # ISI skewness
+skewness(my.data[,9]) # temp skewness
+skewness(my.data[,10]) # RH skewness
+skewness(my.data[,11]) # wind skewness
+skewness(my.data[,12]) # rain skewness
+skewness(my.data[,13]) # area skewness
+```
+
+################################
+# Question 2 - Transform the Data
+################################
+
+## The four chosen variable for transformation are:
+## DMC, ISI, temp, and wind.
+
+```{r}
+I <- c("X6","X8","X9","X11","Y") # Choose any four X variables (from X5, X6, X7, X8, X9, X10, X11, X12) and Y
+
+variables_to_transform <- my.data[,I]  # obtain a 330 by 5 matrix
+
+#Check dimension
+dim(variables_to_transform)
+
+#Check data
+head(variables_to_transform)
+```
+
+
+## check outliers
+
+```{r}
+#Boxplot to check for outliers
+par(mfrow = c(3,3)) 
+boxplot(variables_to_transform[,1], main="DMC") 
+boxplot(variables_to_transform[,2], main="ISI") 
+boxplot(variables_to_transform[,3], main="temp")
+boxplot(variables_to_transform[,4], main="wind")
+boxplot(variables_to_transform[,5], main="area")
+```
+
+## Remove outliers and check boxplot
+
+We can see outlier especially in ISI. So we decided to remove it. After we remove we see an improve in the dataset, especially in ISI.
+
+```{r}
+DMC_out_rm <- variables_to_transform[,1][!variables_to_transform[,1] %in% boxplot.stats(variables_to_transform[,1])$out]
+
+ISI_out_rm <- variables_to_transform[,2][!variables_to_transform[,2] %in% boxplot.stats(variables_to_transform[,2])$out]
+
+temp_out_rm <- variables_to_transform[,3][!variables_to_transform[,3] %in% boxplot.stats(variables_to_transform[,3])$out]
+
+wind_out_rm <- variables_to_transform[,4][!variables_to_transform[,4] %in% boxplot.stats(variables_to_transform[,4])$out]
+
+area_out_rm <- variables_to_transform[,5][!variables_to_transform[,5] %in% boxplot.stats(variables_to_transform[,5])$out]
+```
+
+```{r}
+#Boxplot after removing outliers
+par(mfrow = c(3,3)) 
+boxplot(DMC_out_rm, main= "DMC")
+boxplot(ISI_out_rm, main= "ISI") 
+boxplot(temp_out_rm, main= "temp")
+boxplot(wind_out_rm, main= "wind")
+boxplot(area_out_rm, main= "area")
+```
+
+## The variables to be transformed
+
+```{r}
+#Combine into one dataset
+variables_to_transform <- cbind(DMC_out_rm, ISI_out_rm, temp_out_rm, wind_out_rm, area_out_rm)
+
+#Rename the column names
+colnames(variables_to_transform) <- c("DMC", "ISI", "temp", "wind", "Y")
+
+#Copy the original data
+original <- variables_to_transform
+head(original)
+head(variables_to_transform)
+```
+
+## Data transformation method
+
+DMC is slightly positive skewed. The suitable transformation maybe polynomial with p=0.5. And scaled to 0-1.
+
+ISI is a bit normally distributed. Data transformation used is min max normalization (linear scaling). Cortes and Morais (2007) used linear scaling for all the predictors.
+
+Temp is normally distributed. Z-score standardization maybe a suitable transformation.
+
+Wind is slightly normally distributed. Therefore, we use min max normalization.
+
+Area is slightly right skewed. Log transformation is suitable for burned area. Cortes and Morais (2009) also used log transformation.
+
+```{r}
+p=0.5 # for example, using p=2 to transform the DMC. You should change p based on your distribution.
+variables_to_transform[,1]<-variables_to_transform[,1]^p 
+variables_to_transform[,1]<-1-(variables_to_transform[,1]-min(variables_to_transform[,1]))/(max(variables_to_transform[,1])-min(variables_to_transform[,1]))
+
+# minmax normalisation of ISI
+minmax <- function(x){
+  (x - min(x))/(max(x)-min(x))
+}
+
+variables_to_transform[,2]=minmax(variables_to_transform[,2]) #using min-max normalisation for the first varible.
+
+# z-score standardisation and scaling to unit interval of temp
+unit.z <- function(x){
+  0.15*((x-mean(x))/sd(x)) + 0.5
+}
+
+variables_to_transform[,3]=unit.z(variables_to_transform[,3]) #using standardisatio normalisation for the first varible.
+
+# minmax normalisation of wind
+variables_to_transform[,4]=minmax(variables_to_transform[,4]) # for example,using min-max normalisation for the first variable.
+
+#Log Transformation and Scaling for area
+variables_to_transform[,5]<-log10(variables_to_transform[,5])
+variables_to_transform[,5]<-(variables_to_transform[,5]-min(variables_to_transform[,5]))/(max(variables_to_transform[,5])-min(variables_to_transform[,5]))
+
+# Save this transformed data to a text file
+write.table(variables_to_transform, "Abdullahi-transformed.txt")  # replace “name” with either your surname or first name.
+```
+
+## Histogram and distribution of chosen data after transformation
+
+We can see that all our chosen and the Y variables are scaled between 0-1. We can see that all the data are scaled.
+They all seems to be normally distributed after data transformation.We can also so see a slight improve in the distribution.
+Our data is now normally distributed and ready for data modelling.
+
+```{r}
+#Visualise the transformed data with histogram
+par(mfrow = c(3,3))
+hist(variables_to_transform[,1], freq = FALSE, col="green", density=20, main = "Histogram & Distribution of DMC", xlab = "DMC")
+curve(dnorm(x, mean=mean(variables_to_transform[,1]), sd=sd(variables_to_transform[,1])), add=TRUE, col = "red")
+hist(variables_to_transform[,2], freq = FALSE, col="blue", density=20, main = "Histogram & Distribution of ISI", xlab = "ISI")
+curve(dnorm(x, mean=mean(variables_to_transform[,2]), sd=sd(variables_to_transform[,2])), add=TRUE, col = "red")
+hist(variables_to_transform[,3], freq = FALSE, col="darkred", density=20, main = "Histogram & Distribution of temp", xlab = "temp")
+curve(dnorm(x, mean=mean(variables_to_transform[,3]), sd=sd(variables_to_transform[,3])), add=TRUE, col = "red")
+hist(variables_to_transform[,4], freq = FALSE, col="yellow", density=20, main = "Histogram & Distribution of wind", xlab = "wind")
+curve(dnorm(x, mean=mean(variables_to_transform[,4]), sd=sd(variables_to_transform[,4])), add=TRUE, col = "red")
+hist(variables_to_transform[,5], freq = FALSE, col="orange", density=20, main = "Histogram & Distribution of area", xlab = "area")
+curve(dnorm(x, mean=mean(variables_to_transform[,5]), sd=sd(variables_to_transform[,5])), add=TRUE, col = "red")
+```
+
+# Question 3 - Build models and investigate
+
+## Using the AggWaFit script for the fit functions.
+
+```{r}
+source("/Users/saidpiccolo/Downloads/data\ for\ Assessment\ 2\ updated/AggWaFit718.R")
+```
+
+## fitting the models
+
+```{r}
+data.transformed_copy <- as.matrix(read.table("Abdullahi-transformed.txt"))  # import your saved data
+
+# Get weights for Weighted Arithmetic Mean with fit.QAM() 
+
+fit.QAM(data.transformed_copy,"out_AM.txt","stat_AM.txt",g=AM,g.inv=invAM)
+
+# Get weights for Power Mean p=0.5 and p=2 with fit.QAM()
+
+fit.QAM(data.transformed_copy,"out_PM05.txt","stat_PM05.txt",g=PM05,g.inv=invPM05)
+
+fit.QAM(data.transformed_copy,"out_QM.txt","stat_QM.txt",g=QM,g.inv=invQM)
+
+# Get weights for Ordered Weighted Average with fit.OWA()
+
+fit.OWA(data.transformed_copy,"out_OWA.txt","stat_OWA.txt")
+```
+
+
+# Question 4 - Use Model for Prediction
+
+new_input has X5=96.1; X6=181.1; X7=671.2; X8=14.3; X9=20.7; X10=69; X11=4.9; X12=0.4
+
+We use the same pre-processing as in Task 2.
+
+```{r}
+new_input_to_transform <- c("choose the same four X variables as in Q2")
+
+#You should use the same pre-processing as in Task 2.
+#transformation for X6 using linear feature scaling
+minimum_value_X6 <- min(original[,1])
+maximum_value_X6 <- max(original[,1])
+new_input_to_transformX6 <- (181.1 - minimum_value_X6)/ (maximum_value_X6 - minimum_value_X6)
+
+#transformation for X8 using linear feature scaling
+minimum_value_X8 <- min(original[,2])
+maximum_value_X8 <- max(original[,2])
+new_input_to_transformX8 <- (14.3 - minimum_value_X8)/ (maximum_value_X8 - minimum_value_X8)
+
+#transformation for X9 using linear feature scaling
+mean_X9 <- mean(original[,3])
+SD_X9 <- sd(original[,3])
+new_input_to_transformX9 <- (20.7-mean_X9) / SD_X9
+
+#transformation for X11 using linear feature scaling
+minimum_value_X11 <- min(original[,4])
+maximum_value_X11 <- max(original[,4])
+new_input_to_transformX11 <- (4.9 - minimum_value_X11)/ (maximum_value_X11 - minimum_value_X11)
+
+#Putting them together
+transformed_values_prediction <- c(new_input_to_transformX6, new_input_to_transformX8,
+                                   new_input_to_transformX9, new_input_to_transformX11)
+```
+
+## Using the best model for prediction
+
+Our best model is Order Weighted Average function (OWA). It gives us the lowest RMSE
+and average absolute error compared to the others. It surprising that w 4 is the highest. However, wind would increase the burned area. Second largest weight is for temperature. Interestingly, DMC weight is 0, we would expect moisture content of shallow and deep layers to affect fire intensity. We also see that for all the other fitted function temperature has the highest weight allocated.
+
+```{r}
+# applying the transformed variables to the best model selected from Q3 for Y prediction
+OWA.weights <- c(0, 0.245026185585668, 0.265892223221224, 0.489081591193108)
+predicted_transformed_value_Y <- OWA(transformed_values_prediction, OWA.weights)
+sprintf("After transformation the predicted Y is %.2f", predicted_transformed_value_Y)
+```
+## Postprocessing predicted Y
+
+After reversing the transformation the predicted Y become 0.0070706591. When we round it to 2 decimal it become 0.01. Comparing with actual it is very close. The actual Y being 0.0146.
+
+```{r}
+# Remove the transformation to convert back the predicted Y to the original scale and then round it to 2 significant
+my.data_dataframe <- data.frame(my.data)
+
+log_transformed_valuesY <- log10(my.data_dataframe$Y)
+
+min_value_Y_log <- min(log_transformed_valuesY)
+max_value_Y_log <- min(log_transformed_valuesY)
+rev_ln_scaling = (predicted_transformed_value_Y * (max_value_Y_log-min_value_Y_log)) + min_value_Y_log
+rev_log_transformation <- 10^rev_ln_scaling
+predicted_value_Y <- rev_log_transformation
+
+# Compare your prediction with the measured value of Y, Y=0.0146.
+sprintf("The predicted Y after postprocessing before rounding is %.10f", predicted_value_Y)
+
+sprintf("The predicted Y after postprocessing after round to 2 decimal points is %.2f", predicted_value_Y)
+sprintf("The actual Y is %.2f", 0.0146)
+```
+
+```{r}
+#Checking which packages used in the script
+(.packages())
+```
+
+# References 
+
+Michel Berkelaar and others (2020). lpSolve: Interface to 'Lp_solve' v. 5.5 to Solve
+Linear/Integer Programs. R package version 5.6.15. https://CRAN.R-project.org/package=lpSolve
+
+Cortez, P. and Morais, A. A Data Mining Approach to Predict Forest Fires using Meteorological Data. In J. Neves, M. F. Santos and J. Machado Eds., New Trends in Artificial Intelligence, Proceedings of the 13th EPIA 2007 - Portuguese Conference on Artificial Intelligence, December, Guimarães, Portugal, pp. 512-523, 2007. APPIA, ISBN-13 978-989-95618-0-9, available at http://www3.dsi.uminho.pt/pcortez/fires.pdf. "UCI Machine Learning Repository: Forest Fires Data Set". Archive.ics.uci.edu. N.p., 2017, http://archive.ics.uci.edu/ml/datasets/forest+fires.
+
+David Meyer, Evgenia Dimitriadou, Kurt Hornik, Andreas Weingessel and Friedrich Leisch (2022). e1071: Misc Functions of the Department of Statistics, Probability Theory Group (Formerly: E1071), TU Wien. R package version 1.7-11. https://CRAN.R-project.org/package=e1071
+
+Michel Berkelaar and others (2020). lpSolve: Interface to 'Lp_solve' v. 5.5 to Solve
+Linear/Integer Programs. R package version 5.6.15. https://CRAN.R-project.org/package=lpSolve
+
+R Core Team (2021). R: A language and environment for statistical computing. R Foundation for Statistical Computing, Vienna, Austria. URL https://www.R-project.org/.
+
